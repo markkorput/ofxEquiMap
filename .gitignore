@@ -1,3 +1,4 @@
+obj
 # Created by http://www.gitignore.io
 
 ### Xcode ###
@@ -63,4 +64,3 @@ Temporary Items
 *.exe
 *.out
 *.app
-
