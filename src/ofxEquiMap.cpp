@@ -89,4 +89,30 @@ namespace ofxEquiMap {
             cm.endDrawingInto2D();
         }
     }
+
+    bool Exporter::toFile(const std::string& fname) {
+        if (!fbo.isAllocated()) {
+          fbo.allocate(width, height, GL_RGB);
+        }
+
+        if (!pixels.isAllocated()) {
+          pixels.allocate(height, height, OF_IMAGE_COLOR);
+        }
+
+        // pixels.clear();
+        fbo.begin();
+        renderer->draw(0,0, width, height);
+        fbo.end();
+        //get the frame buffer pixels
+        fbo.readToPixels(pixels);
+        ofSaveImage(pixels, fname, OF_IMAGE_QUALITY_BEST);
+
+        //save
+        return true;
+    }
+
+    bool saveToFile(Renderer& renderer, const std::string& fileName) {
+        auto ex = Exporter(renderer);
+        return ex.toFile(fileName);
+   }
 }
