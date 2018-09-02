@@ -56,7 +56,10 @@ namespace ofxEquiMap
 
     public:
       Exporter(Renderer& r) : renderer(&r) {}
+      void update();
       bool toFile(const std::string& fname);
+
+      const ofFbo& getFbo() const { return fbo; }
     };
 
     bool saveToFile(Renderer& renderer, const std::string& fileName);
