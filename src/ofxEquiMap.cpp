@@ -78,20 +78,24 @@ namespace ofxEquiMap {
         registerScene(s);
     }
 
+    void Renderer::render(std::function<void()> func) {
+        for (int i = 0; i < 6; i++) {
+            cm.beginDrawingInto3D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + i );
+            ofClear(0);
+            // work around for ofLight issue caused by ofxCubeMap
+            ofLoadViewMatrix(ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+            func();
+            cm.endDrawingInto3D();
+        }
+    }
+
     void Renderer::render() {
         if (!scene) {
             ofLogWarning() << "[ofxEquiMap::Renderer::render] no scene";
             return;
         }
 
-        for (int i = 0; i < 6; i++) {
-            cm.beginDrawingInto3D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + i );
-            ofClear(0);
-            // work around for ofLight issue caused by ofxCubeMap
-            ofLoadViewMatrix(ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
-            scene->drawEquiScene();
-            cm.endDrawingInto3D();
-        }
+        this->render([this](){ this->scene->drawEquiScene(); });
     }
 
     void Renderer::draw(float x, float y, float w, float h) {
@@ -125,6 +129,10 @@ namespace ofxEquiMap {
     }
 
     void CustomFboRenderer::render() {
+        this->render([this](){ this->scene->drawEquiScene(); });
+    }
+
+    void CustomFboRenderer::render(std::function<void()> func) {
         for (int i = 0; i < 6; ++i) {
             fbo.begin();
             ofClear(0);
