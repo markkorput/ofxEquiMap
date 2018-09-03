@@ -28,6 +28,8 @@ namespace ofxEquiMap
             cm.setPosition(p2);
         }
 
+        const ofFbo& getCubeMapFbo() const { return cm.getFbo(); }
+
         void registerScene(Scene* s) {scene = s;}
         void setPosition(float x, float y, float z) {cm.setPosition(x, y, z);}
         ofxCubeMap& getCubeMap() {return cm;}

@@ -6,43 +6,41 @@
 
 namespace ofxEquiMap {
 
-    // static string warp_frag_shader_str = string("#version 330\nprecision highp float;\n") + STRINGIFY(
-    //    uniform samplerCube envMap;
-    //
-    //    void main() {
-    //        //
-    //        //
-    //        // vec2 thetaphi = ((tc * 2.0) - vec2(1.0)) * vec2(3.1415926535897932384626433832795, 1.5707963267948966192313216916398);
-    //        // vec3 rayDirection = vec3(cos(thetaphi.y) * cos(thetaphi.x), sin(thetaphi.y), cos(thetaphi.y) * sin(thetaphi.x));
-    //
-    //        gl_FragColor = vec4(1,0,0,1); //textureCube(envMap, rayDirection);
-    //    }
-    //    );
+    static string warp_frag_shader_str = STRINGIFY(
+        uniform samplerCube envMap;
 
-    string warp_vert_shader_str = string("#version 330\nprecision highp float;\n") + STRINGIFY(
-     //
-		 layout(location = 0) in vec4  position;
-		 layout(location = 1) in vec4  color;
-		 layout(location = 2) in vec3  normal;
-		 layout(location = 3) in vec2  texcoord;
+        void main() {
+            vec2 tc = gl_TexCoord[0].st / vec2(2.0) + 0.5;  //only line modified from the shader toy example
+            vec2 thetaphi = ((tc * 2.0) - vec2(1.0)) * vec2(3.1415926535897932384626433832795, 1.5707963267948966192313216916398);
+            vec3 rayDirection = vec3(cos(thetaphi.y) * cos(thetaphi.x), sin(thetaphi.y), cos(thetaphi.y) * sin(thetaphi.x));
+            gl_FragColor = textureCube(envMap, rayDirection);
+        }
+    );
 
-		 uniform mat4 projectionMatrix;
-		 uniform mat4 modelViewMatrix;
-		 uniform mat4 modelViewProjectionMatrix;
-		 uniform mat4 normalMatrix;
+    string warp_vert_shader_str330 = string("#version 330\nprecision highp float;\n") + STRINGIFY(
+        //
+        layout(location = 0) in vec4  position;
+        layout(location = 1) in vec4  color;
+        layout(location = 2) in vec3  normal;
+        layout(location = 3) in vec2  texcoord;
 
-		 out VertexAttrib {
-			 vec3 texcoord;
-		 } vertex;
+        uniform mat4 projectionMatrix;
+        uniform mat4 modelViewMatrix;
+        uniform mat4 modelViewProjectionMatrix;
+        uniform mat4 normalMatrix;
 
-		 void main(void)
-		{
-			vertex.texcoord = normalize(position.xyz);
-			gl_Position = modelViewProjectionMatrix * position;
-		}
-	);
+        out VertexAttrib {
+        vec3 texcoord;
+        } vertex;
 
-   	string warp_frag_shader_str = string("#version 330\nprecision highp float;\n") + STRINGIFY(
+        void main(void)
+        {
+            vertex.texcoord = normalize(position.xyz);
+            gl_Position = modelViewProjectionMatrix * position;
+        }
+    );
+
+    string warp_frag_shader_str330 = string("#version 330\nprecision highp float;\n") + STRINGIFY(
 
         uniform samplerCube envMap;
 
@@ -59,21 +57,27 @@ namespace ofxEquiMap {
             vec3 rayDirection = vec3(cos(thetaphi.y) * cos(thetaphi.x), sin(thetaphi.y), cos(thetaphi.y) * sin(thetaphi.x));
             fragColor = texture(envMap, rayDirection); //vec4(1,0,0,1);
         }
-        );
+    );
 
     void Renderer::setup(int size, Scene* s, int internalformat)
     {
         int type = ofGetGlTypeFromInternal(internalformat);
         int format = ofGetGLFormatFromInternal(internalformat);
         cm.init(size, format, type);
-        warpShader.setupShaderFromSource(GL_VERTEX_SHADER, warp_vert_shader_str );
-        warpShader.setupShaderFromSource(GL_FRAGMENT_SHADER, warp_frag_shader_str);
+        if (ofIsGLProgrammableRenderer()) {
+            warpShader.setupShaderFromSource(GL_VERTEX_SHADER, warp_vert_shader_str330 );
+            warpShader.setupShaderFromSource(GL_FRAGMENT_SHADER, warp_frag_shader_str330 );
+        } else {
+            // warpShader.setupShaderFromSource(GL_VERTEX_SHADER, warp_vert_shader_str );
+            warpShader.setupShaderFromSource(GL_FRAGMENT_SHADER, warp_frag_shader_str);
+        }
         warpShader.linkProgram();
         registerScene(s);
     }
 
     void Renderer::render() {
         if (!scene) {
+            ofLogWarning() << "[ofxEquiMap::Renderer::render] no scene";
             return;
         }
 
