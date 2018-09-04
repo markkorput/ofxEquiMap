@@ -6,6 +6,8 @@ class ofApp : public ofBaseApp, public ofxEquiMap::Scene{
     ofxEquiMap::CustomFboRenderer em2;
 
     ofVboMesh m;
+    ofEasyCam mEasyCam;
+
 public:
     void setup()
     {
@@ -55,6 +57,32 @@ public:
         if (ofGetKeyPressed(' ')) {
             em.draw(0, 0, ofGetWidth(), ofGetHeight());
             ofDrawBitmapStringHighlight("Renderer", 10, 40);
+        } else if (ofGetKeyPressed('c')) {
+            auto cubemap = em.getCubeMap();
+            mEasyCam.begin();
+            cubemap.bind();
+            cubemap.drawSkybox( ofVec3f(0), 800 );
+            cubemap.unbind();
+            mEasyCam.end();
+
+            ofDrawBitmapStringHighlight("CubeMap Skybox", 10, 40);
+        } else if (ofGetKeyPressed('C')) {
+            auto cubemap = em2.getCubeMap();
+            mEasyCam.begin();
+            cubemap.bind();
+            cubemap.drawSkybox( ofVec3f(0), 800 );
+            cubemap.unbind();
+            mEasyCam.end();
+
+            ofDrawBitmapStringHighlight("Custom CubeMap Skybox", 10, 40);
+        } else if (ofGetKeyPressed('f')) {
+            auto cubemap = em.getCubeMap();
+            cubemap.getFbo().draw(0,0);
+            ofDrawBitmapStringHighlight("CubeMap fbo", 10, 40);
+        } else if (ofGetKeyPressed('F')) {
+            auto cubemap = em2.getCubeMap();
+            cubemap.getFbo().draw(0,0);
+            ofDrawBitmapStringHighlight("CubeMap fbo (custom)", 10, 40);
         } else {
             em2.draw(0, 0, ofGetWidth(), ofGetHeight());
             ofDrawBitmapStringHighlight("CustomFboRenderer", 10, 40);
@@ -71,12 +99,33 @@ public:
 };
 
 //========================================================================
-int main( ){
+
+int main(int argc, char** argv){
+
+    if (argc < 2) {
+        ofGLFWWindowSettings settings;
+        settings.glVersionMajor = 4;
+        settings.glVersionMinor = 1;
+        //    settings.windowMode = OF_WINDOW;
+        settings.width = 1280;
+        settings.height = 720;
+        //    settings.multiMonitorFullScreen=true;
+        shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
+        mainWindow->setWindowTitle("Multiverse - MAIN");
+        mainWindow->setWindowPosition(0, 0);
+        shared_ptr<ofApp> mainApp(new ofApp());
+        ofRunApp(mainWindow, mainApp);
+        ofRunMainLoop();
+        return 0;
+    }
+
+
     ofSetupOpenGL(1280,640,OF_WINDOW);            // <-------- setup the GL context
 
     // this kicks off the running of my app
     // can be OF_WINDOW or OF_FULLSCREEN
     // pass in width and height too:
     ofRunApp(new ofApp());
+    return 0;
 
 }
