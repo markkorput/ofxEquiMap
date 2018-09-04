@@ -89,6 +89,20 @@ namespace ofxEquiMap {
         }
     }
 
+    void Renderer::render(std::function<void(ofCamera&)> func) {
+        ofCamera cam;
+
+        for (int i = 0; i < 6; i++) {
+            cm.beginDrawingInto3D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + i );
+            ofClear(0);
+            // work around for ofLight issue caused by ofxCubeMap
+            ofLoadViewMatrix(ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+            cm.loadFaceCamera(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cam);
+            func(cam);
+            cm.endDrawingInto3D();
+        }
+    }
+
     void Renderer::render() {
         if (!scene) {
             ofLogWarning() << "[ofxEquiMap::Renderer::render] no scene";

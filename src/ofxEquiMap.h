@@ -22,6 +22,7 @@ namespace ofxEquiMap
         void setup(int size, Scene* s, int internalformat = GL_RGB);
         virtual void render();
         virtual void render(std::function<void()> func);
+        void render(std::function<void(ofCamera&)> func);
         void draw(float x, float y, float w, float h);
 
         void setPosition(const ofVec3f& p) {
@@ -60,6 +61,7 @@ namespace ofxEquiMap
 
     public:
       Exporter(Renderer& r) : renderer(&r) {}
+      Exporter(Renderer& r, int w, int h) : renderer(&r), width(w), height(h) {}
       void update();
       bool toFile(const std::string& fname);
 
